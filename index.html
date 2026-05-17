@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Home">
+<title>Home</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0b0e16;--card:#141b28;--surface:#1c2438;
+  --border:rgba(255,255,255,0.07);--text:#d8e2f8;--muted:#4e5e80;
+  --amber:#f0a030;--amber-d:rgba(240,160,48,.14);
+  --blue:#5aa4f0;--blue-d:rgba(90,164,240,.14);
+  --green:#38d48a;--green-d:rgba(56,212,138,.14);
+  --purple:#a07ef5;--purple-d:rgba(160,126,245,.14);
+  --red:#f07070;--red-d:rgba(240,112,112,.14);
+  --teal:#30c8b8;--teal-d:rgba(48,200,184,.14);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Text',sans-serif;font-size:15px;overflow-x:hidden}
+
+/* ── SETUP ── */
+#setup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);z-index:99}
+#setup.hide{display:none}
+.setup-box{width:100%;max-width:340px;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:1.5rem}
+.setup-box h2{font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:.35rem}
+.setup-box p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.1rem}
+.s-input{display:block;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px;color:var(--text);font-size:13px;outline:none;margin-bottom:.65rem}
+.s-input:focus{border-color:rgba(90,164,240,.4)}
+.s-btn{display:block;width:100%;background:var(--blue);color:#0b0e16;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+
+/* ── MAIN ── */
+#app{display:none;padding-top:env(safe-area-inset-top);padding-bottom:calc(env(safe-area-inset-bottom)+1rem)}
+#app.show{display:block}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem .6rem}
+.hdr-l h1{font-size:22px;font-weight:800;letter-spacing:-.6px}
+.hdr-l p{font-size:11px;color:var(--muted);margin-top:2px}
+.hdr-r{display:flex;gap:7px}
+.ico-btn{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--muted);user-select:none}
+.ico-btn:active{opacity:.65}
+
+/* Error */
+.err-bar{margin:.2rem 1.2rem .4rem;background:var(--red-d);border:1px solid rgba(240,112,112,.25);border-radius:12px;padding:9px 13px;font-size:12px;color:var(--red);display:none;align-items:center;gap:8px}
+.err-bar.show{display:flex}
+
+/* Section */
+.sec{padding:.5rem 1.2rem}
+.sec-ttl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem;display:flex;align-items:center;gap:7px}
+.sec-ttl::before{content:'';display:inline-block;width:3px;height:12px;border-radius:2px;background:currentColor}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1rem}
+
+/* ── LOCATION ── */
+.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.loc-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1rem}
+.loc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:.5rem}
+.loc-nm{font-size:14px;font-weight:700;margin-bottom:4px}
+.loc-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:30px}
+.loc-ts{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
+.loc-upd{display:block;width:100%;margin-top:9px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:11px;padding:6px;cursor:pointer}
+.loc-upd:active{opacity:.65}
+
+/* ── BUDGET ── */
+.bud-donuts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.bud-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1rem;text-align:center}
+.bud-card svg{display:block;margin:0 auto}
+.bud-lbl{font-size:11px;font-weight:600;color:var(--muted);margin-top:.4rem;text-transform:uppercase;letter-spacing:.05em}
+.bud-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.bud-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.bud-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.7rem .9rem}
+.bud-stat-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.bud-stat-val{font-size:16px;font-weight:700;letter-spacing:-.3px}
+
+/* ── CALENDAR ── */
+.cal-list{}
+.cal-item{display:flex;gap:12px;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.cal-item:last-child{border-bottom:none}
+.cal-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px}
+.cal-ttl{font-size:14px;font-weight:500;line-height:1.3}
+.cal-tm{font-size:11px;color:var(--muted);margin-top:2px}
+.cal-empty{font-size:13px;color:var(--muted);padding:.5rem 0}
+
+/* ── CARS ── */
+.car-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.car-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1rem;text-align:center}
+.car-ico{font-size:26px;margin-bottom:.45rem}
+.car-nm{font-size:13px;font-weight:700;margin-bottom:.6rem}
+.car-btn{display:block;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--blue);font-size:12px;font-weight:600;padding:8px;cursor:pointer;text-decoration:none;margin-bottom:5px}
+.car-btn:last-child{margin-bottom:0}
+.car-btn:active{opacity:.65}
+
+/* ── BOTTOM SHEET ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;opacity:0;pointer-events:none;transition:opacity .22s}
+.overlay.on{opacity:1;pointer-events:all}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:#1a2235;border-radius:22px 22px 0 0;padding:1rem 1.2rem calc(env(safe-area-inset-bottom)+1.2rem);z-index:201;transform:translateY(100%);transition:transform .28s cubic-bezier(.25,.46,.45,.94)}
+.sheet.on{transform:translateY(0)}
+.sheet-handle{width:34px;height:4px;border-radius:2px;background:rgba(255,255,255,.13);margin:0 auto .9rem}
+.sheet-ttl{font-size:16px;font-weight:700;margin-bottom:.9rem}
+.loc-opts{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+.loc-opt{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px 10px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text)}
+.loc-opt.wide{grid-column:1/-1}
+.loc-opt:active{opacity:.65}
+.loc-opt.cur{border-color:var(--blue);background:var(--blue-d);color:var(--blue)}
+
+/* ── LOADING SKELETON ── */
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+.skel{background:var(--card);border-radius:10px;height:18px;animation:pulse 1.6s ease infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin .9s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+  <div class="setup-box">
+    <h2>🏠 Family Dashboard</h2>
+    <p>Paste your Google Apps Script URL to get started</p>
+    <input id="setup-url" class="s-input" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+    <button class="s-btn" onclick="saveConfig()">Connect</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1 id="greeting"></h1>
+      <p id="datestr"></p>
+    </div>
+    <div class="hdr-r">
+      <div class="ico-btn" id="refresh-btn" onclick="refreshAll()">↻</div>
+      <div class="ico-btn" onclick="openSetup()">⚙</div>
+    </div>
+  </div>
+
+  <div class="err-bar" id="err-bar">⚠ <span id="err-msg"></span></div>
+
+  <!-- LOCATIONS -->
+  <div class="sec">
+    <div class="sec-ttl" style="--muted:#f0a030">Locations</div>
+    <div class="loc-grid" id="loc-grid"></div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="sec">
+    <div class="sec-ttl" style="--muted:#38d48a">Monthly Bills</div>
+    <div class="bud-donuts" id="bud-donuts"></div>
+    <div class="bud-stats" id="bud-stats"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="sec">
+    <div class="sec-ttl" style="--muted:#5aa4f0">Upcoming</div>
+    <div class="card"><div id="cal-list"></div></div>
+  </div>
+
+  <!-- CARS -->
+  <div class="sec">
+    <div class="sec-ttl" style="--muted:#30c8b8">Cars</div>
+    <div class="car-grid">
+      <div class="car-card">
+        <div class="car-ico">🚗</div>
+        <div class="car-nm">Josh's Mazda</div>
+        <a class="car-btn" href="mymazda://" onclick="mazdaFallback(event)">Open MyMazda</a>
+      </div>
+      <div class="car-card">
+        <div class="car-ico">🚗</div>
+        <div class="car-nm">Katherine's Mazda</div>
+        <a class="car-btn" href="mymazda://" onclick="mazdaFallback(event)">Open MyMazda</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-ttl" id="sheet-ttl">Update location</div>
+  <div class="loc-opts" id="loc-opts"></div>
+</div>
+
+<script>
+const LOCS = [
+  {k:"Home",            e:"🏠", c:"var(--amber)",  d:"var(--amber-d)"},
+  {k:"Work",            e:"💼", c:"var(--blue)",   d:"var(--blue-d)"},
+  {k:"Gym",             e:"🏋️", c:"var(--green)",  d:"var(--green-d)"},
+  {k:"Rose State College",e:"🎓",c:"var(--purple)", d:"var(--purple-d)"},
+  {k:"Other",           e:"📍", c:"var(--muted)",  d:"var(--border)"},
+];
+
+let SCRIPT_URL = localStorage.getItem("fdash_url")||"";
+let DATA = null;
+let ACTIVE_PERSON = "";
+
+/* ── INIT ── */
+function init(){
+  tick(); setInterval(tick,30000);
+  if(SCRIPT_URL){ showApp(); fetchAll(); setInterval(fetchAll,300000); }
+  else showSetup();
+}
+function tick(){
+  const n=new Date(), h=n.getHours();
+  document.getElementById("greeting").textContent=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  document.getElementById("datestr").textContent=n.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+}
+function showApp(){ document.getElementById("setup").classList.add("hide"); document.getElementById("app").classList.add("show"); }
+function showSetup(){ document.getElementById("setup-url").value=SCRIPT_URL; document.getElementById("setup").classList.remove("hide"); }
+function openSetup(){ showSetup(); }
+function saveConfig(){
+  const u=document.getElementById("setup-url").value.trim();
+  if(!u)return;
+  SCRIPT_URL=u; localStorage.setItem("fdash_url",u);
+  showApp(); fetchAll();
+}
+
+/* ── FETCH ── */
+async function fetchAll(){
+  if(!SCRIPT_URL)return;
+  setRefresh(true); hideErr();
+  try{
+    const r=await fetch(SCRIPT_URL+"?action=all",{redirect:"follow"});
+    DATA=await r.json();
+    renderAll();
+  }catch(e){ showErr("Connection failed — check your Apps Script URL."); }
+  setRefresh(false);
+}
+function refreshAll(){ fetchAll(); }
+function setRefresh(on){
+  const b=document.getElementById("refresh-btn");
+  b.innerHTML=on?'<span class="spinning">↻</span>':"↻";
+  b.style.pointerEvents=on?"none":"auto";
+}
+function showErr(m){ const b=document.getElementById("err-bar"); b.classList.add("show"); document.getElementById("err-msg").textContent=m; }
+function hideErr(){ document.getElementById("err-bar").classList.remove("show"); }
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  if(!DATA)return;
+  renderLoc(DATA.locations||{});
+  renderBudget(DATA.budget||{});
+  renderCal(DATA.calendar||[]);
+}
+
+/* ── LOCATIONS ── */
+function renderLoc(locs){
+  const people=[
+    {k:"josh",   n:"Josh",      i:"J", ac:"var(--amber-d)", at:"var(--amber)"},
+    {k:"katherine",n:"Katherine",i:"K", ac:"var(--purple-d)",at:"var(--purple)"},
+  ];
+  document.getElementById("loc-grid").innerHTML=people.map(p=>{
+    const d=locs[p.k]||{};
+    const loc=LOCS.find(l=>l.k===d.location);
+    const badge=loc
+      ?`<span class="loc-badge" style="background:${loc.d};color:${loc.c}">${loc.e} ${loc.k==="Rose State College"?"Rose State":loc.k}</span>`
+      :`<span class="loc-badge" style="background:var(--surface);color:var(--muted)">Not set</span>`;
+    const ts=d.updated?`<div class="loc-ts">${d.updated}</div>`:"";
+    return`<div class="loc-card">
+      <div class="loc-av" style="background:${p.ac};color:${p.at}">${p.i}</div>
+      <div class="loc-nm">${p.n}</div>
+      ${badge}${ts}
+      <button class="loc-upd" onclick="openSheet('${p.n}','${d.location||""}')">Update ›</button>
+    </div>`;
+  }).join("");
+}
+
+/* ── BUDGET ── */
+function renderBudget(b){
+  const income=b.income||0, expected=b.expectedBills||0;
+  const paid=b.actuallyPaid||0, outstanding=b.outstanding||0;
+  const remaining=b.remainingAfterBills||0;
+
+  const paidPct=expected>0?paid/expected:0;
+  const remPct=income>0?remaining/income:0;
+
+  const paidColor=paidPct>=.8?"var(--green)":paidPct>=.4?"var(--amber)":"var(--red)";
+  const remColor=remPct>=.25?"var(--green)":remPct>=.1?"var(--amber)":"var(--red)";
+
+  document.getElementById("bud-donuts").innerHTML=`
+    <div class="bud-card">${donut(paidPct,paidColor)}
+      <div class="bud-lbl">Bills Paid</div>
+      <div class="bud-sub">${fmt(paid)} of ${fmt(expected)}</div>
+    </div>
+    <div class="bud-card">${donut(remPct,remColor)}
+      <div class="bud-lbl">Remaining</div>
+      <div class="bud-sub">After all bills</div>
+    </div>`;
+
+  document.getElementById("bud-stats").innerHTML=`
+    <div class="bud-stat">
+      <div class="bud-stat-lbl">Income</div>
+      <div class="bud-stat-val" style="color:var(--green)">${fmt(income)}</div>
+    </div>
+    <div class="bud-stat">
+      <div class="bud-stat-lbl">Expected Bills</div>
+      <div class="bud-stat-val">${fmt(expected)}</div>
+    </div>
+    <div class="bud-stat">
+      <div class="bud-stat-lbl">Paid So Far</div>
+      <div class="bud-stat-val" style="color:var(--blue)">${fmt(paid)}</div>
+    </div>
+    <div class="bud-stat">
+      <div class="bud-stat-lbl">Outstanding</div>
+      <div class="bud-stat-val" style="color:var(--amber)">${fmt(outstanding)}</div>
+    </div>`;
+}
+
+function donut(pct,color){
+  const r=38,cx=50,cy=50,sw=9,c=2*Math.PI*r;
+  const dash=(Math.min(pct,1)*c).toFixed(1), gap=(c-Math.min(pct,1)*c).toFixed(1);
+  const label=Math.round(pct*100)+"%";
+  return`<svg width="96" height="96" viewBox="0 0 100 100">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${gap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy-1}" text-anchor="middle" dominant-baseline="middle"
+      fill="#d8e2f8" font-size="17" font-weight="700" font-family="-apple-system,sans-serif">${label}</text>
+  </svg>`;
+}
+
+function fmt(n){
+  if(!n&&n!==0)return"—";
+  return"$"+Math.round(n).toLocaleString();
+}
+
+/* ── CALENDAR ── */
+function renderCal(events){
+  const el=document.getElementById("cal-list");
+  if(!events.length){ el.innerHTML=`<div class="cal-empty">No upcoming events</div>`; return; }
+  el.innerHTML=events.map(ev=>`
+    <div class="cal-item">
+      <div class="cal-dot"></div>
+      <div>
+        <div class="cal-ttl">${esc(ev.title)}</div>
+        <div class="cal-tm">${ev.start}${ev.allDay?" · All day":""}</div>
+      </div>
+    </div>`).join("");
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ── LOCATION SHEET ── */
+function openSheet(person,cur){
+  ACTIVE_PERSON=person;
+  document.getElementById("sheet-ttl").textContent=`Update ${person}'s location`;
+  document.getElementById("loc-opts").innerHTML=LOCS.map(l=>`
+    <div class="loc-opt${l.k==="Rose State College"?" wide":""}${l.k===cur?" cur":""}"
+      onclick="setLoc('${l.k}')">
+      ${l.e} ${l.k}
+    </div>`).join("");
+  document.getElementById("overlay").classList.add("on");
+  document.getElementById("sheet").classList.add("on");
+}
+function closeSheet(){
+  document.getElementById("overlay").classList.remove("on");
+  document.getElementById("sheet").classList.remove("on");
+}
+async function setLoc(loc){
+  closeSheet();
+  if(!SCRIPT_URL||!ACTIVE_PERSON)return;
+  try{
+    await fetch(`${SCRIPT_URL}?action=update&person=${ACTIVE_PERSON}&location=${encodeURIComponent(loc)}`,{redirect:"follow"});
+    await fetchAll();
+  }catch{}
+}
+
+/* ── MAZDA ── */
+function mazdaFallback(e){
+  setTimeout(()=>{ window.location.href="https://apps.apple.com/us/app/mymazda/id1440243427"; },1400);
+}
+
+init();
+</script>
+</body>
+</html>
