@@ -464,17 +464,22 @@ function renderCreditCards(cards){
   const el=document.getElementById("credit-section");
   el.innerHTML=CC_CARDS.map(cc=>{
     const d=cards[cc.key.toLowerCase()]||{};
-
-    // Not yet connected — show connect button
     if(!d.connected){
       return`<div class="cc-card">
         <div class="cc-name" style="color:${cc.accentColor}">${cc.label}</div>
-        <button class="cc-connect" onclick="connectPlaid('${cc.key}')">
-          🔗 Connect ${cc.label}
-        </button>
+        <button class="cc-connect" onclick="connectPlaid('${cc.key}')">🔗 Connect ${cc.label}</button>
         <div class="cc-status" id="plaid-status-${cc.key.toLowerCase()}"></div>
       </div>`;
     }
+    const bal=d.balance!=null?"$"+Number(d.balance).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
+    return`<div class="cc-card">
+      <div class="cc-name" style="color:${cc.accentColor}">${cc.label}</div>
+      <div class="cc-bal">${bal}</div>
+      <div class="cc-bal-lbl">Current balance</div>
+      ${d.updated?`<div class="cc-ts">Updated ${esc(d.updated)}</div>`:""}
+    </div>`;
+  }).join("");
+}
 
     // Connected — show balance data, no connect button
     const bal  = d.balance  != null ? "$"+Number(d.balance).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—";
